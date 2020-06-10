@@ -54,11 +54,11 @@ namespace ClassicUO.Utility
             return (uint) (_table[(c >> 10) & 0x1F] | (_table[(c >> 5) & 0x1F] << 8) | (_table[c & 0x1F] << 16));
         }
 
-        [MethodImpl(256)]
+        /*[MethodImpl(256)]
         public static ushort Color32To16(uint c)
         {
             return (ushort) ((((c & 0xFF) << 5) >> 8) | (((((c >> 16) & 0xFF) << 5) >> 8) << 10) | (((((c >> 8) & 0xFF) << 5) >> 8) << 5));
-        }
+        }*/
 
         [MethodImpl(256)]
         public static ushort ConvertToGray(ushort c)
@@ -89,6 +89,30 @@ namespace ClassicUO.Utility
             ushort v = (ushort)((newred << 10) | (newgreen << 5) | (newblue));
 
             return v;
+        }
+
+        [MethodImpl(256)]
+        public static ushort Color32To16(uint c)
+        {            
+            const double SCALE = 31.0 / 255;
+
+            ushort origred = (ushort) ((c >> 0) & 0xFF);
+            ushort origgreen = (ushort) ((c >> 8) & 0xFF);
+            ushort origblue = (ushort) ((c >> 16) & 0xFF);
+          
+            ushort newred = (ushort)(origred * SCALE);
+            if (newred == 0 && origred != 0)
+                newred = 1;
+
+            ushort newgreen = (ushort)(origgreen * SCALE);
+            if (newgreen == 0 && origgreen != 0)
+                newgreen = 1;
+
+            ushort newblue = (ushort)(origblue * SCALE);
+            if (newblue == 0 && origblue != 0)
+                newblue = 1;
+
+            return (ushort)((newred << 10) | (newgreen << 5) | (newblue));
         }
     }
 }

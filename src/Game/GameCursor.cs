@@ -246,9 +246,9 @@ namespace ClassicUO.Game
                                     {
                                         while (pixels_ptr < p_line_end)
                                         {
-                                            if (*pixels_ptr != 0 && *pixels_ptr != 0xFF_00_00_00)
+                                            if (*pixels_ptr != 0)
                                             {
-                                                *pixels_ptr = HuesHelper.Color16To32(HuesLoader.Instance.GetColor16( (ushort) (HuesHelper.Color32To16(*pixels_ptr) ) , 0x0033)) | 0xFF_00_00_00;
+                                                *pixels_ptr = HuesHelper.Color16To32(HuesLoader.Instance.GetColor16(HuesHelper.Color32To16(*pixels_ptr), 0x0033)) | 0xFF_00_00_00;
                                             }
 
                                             ++pixels_ptr;
