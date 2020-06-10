@@ -51,7 +51,10 @@ namespace ClassicUO.Utility
         [MethodImpl(256)]
         public static uint Color16To32(ushort c)
         {
-            return (uint) (_table[(c >> 10) & 0x1F] | (_table[(c >> 5) & 0x1F] << 8) | (_table[c & 0x1F] << 16));
+            unchecked
+            {
+                return (uint) (_table[(c >> 10) & 0x1F] | (_table[(c >> 5) & 0x1F] << 8) | (_table[c & 0x1F] << 16));
+            }
         }
 
         /*[MethodImpl(256)]
