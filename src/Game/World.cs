@@ -61,9 +61,7 @@ namespace ClassicUO.Game
 
         public static HouseManager HouseManager { get; } = new HouseManager();
 
-        public static EntityCollection<Item> Items { get; } = new EntityCollection<Item>();
-
-        public static EntityCollection<Mobile> Mobiles { get; } = new EntityCollection<Mobile>();
+        public static EntityCollection<Entity> Objects { get; } = new EntityCollection<Entity>();
 
         public static PlayerMobile Player;
 
@@ -197,12 +195,12 @@ namespace ClassicUO.Game
             {
                 if (SerialHelper.IsValid(ObjectToRemove))
                 {
-                    Item rem = Items.Get(ObjectToRemove);
+                    Item rem = (Item) Get(ObjectToRemove);
                     ObjectToRemove = 0;
 
                     if (rem != null)
                     {
-                        RemoveItem(rem, true);
+                        RemoveObject(rem, true);
 
                         if (rem.Layer == Layer.OneHanded || rem.Layer == Layer.TwoHanded)
                             Player.UpdateAbilities();
@@ -218,79 +216,79 @@ namespace ClassicUO.Game
                     }
                 }
 
-                foreach (Mobile mob in Mobiles)
+                foreach (Entity entity in Objects)
                 {
-                    mob.Update(totalMS, frameMS);
+                    entity.Update(totalMS, frameMS);
 
-                    if (mob.Distance > ClientViewRange)
-                        RemoveMobile(mob);
+                    bool remove = entity.Distance > ClientViewRange;
 
-                    if (mob.IsDestroyed)
-                        _toRemove.Add(mob);
-                    else
+                    if (entity is Item item)
                     {
-                        if (mob.NotorietyFlag == NotorietyFlag.Ally)
+                        if (item.OnGround && remove)
                         {
-                            WMapManager.AddOrUpdate(
-                                                    mob.Serial,
-                                                    mob.X,
-                                                    mob.Y,
-                                                    Utility.MathHelper.PercetangeOf(mob.Hits, mob.HitsMax),
-                                                    MapIndex,
-                                                    true,
-                                                    mob.Name);
-                        }
-                        else if (Party.Leader != 0 && Party.Contains(mob))
-                        {
-                            WMapManager.AddOrUpdate(
-                                                    mob.Serial,
-                                                    mob.X,
-                                                    mob.Y,
-                                                    Utility.MathHelper.PercetangeOf(mob.Hits, mob.HitsMax),
-                                                    MapIndex,
-                                                    false,
-                                                    mob.Name);
-                        }
-                    }
-                }
-
-                if (_toRemove.Count != 0)
-                {
-                    for (int i = 0; i < _toRemove.Count; i++)
-                        Mobiles.Remove(_toRemove[i]);
-
-                    _toRemove.Clear();
-                }
-
-                foreach (Item item in Items)
-                {
-                    item.Update(totalMS, frameMS);
-
-                    if (item.OnGround && item.Distance > ClientViewRange)
-                    {
-                        if (item.IsMulti)
-                        {
-                            if (HouseManager.TryToRemove(item, ClientViewRange))
-                                RemoveItem(item);
+                            if (item.IsMulti)
+                            {
+                                if (HouseManager.TryToRemove(entity.Serial, ClientViewRange))
+                                    RemoveObject(entity.Serial);
+                            }
+                            else
+                                RemoveObject(entity.Serial);
                         }
                         else
-                            RemoveItem(item);
+                            remove = false;
+                    }
+                    else 
+                    {
+                        if (remove)
+                        {
+                            RemoveObject(entity.Serial);
+                        }
+                        else
+                        {
+                            var mob = (Mobile) entity;
+
+                            if (mob.NotorietyFlag == NotorietyFlag.Ally)
+                            {
+                                WMapManager.AddOrUpdate(
+                                                        mob.Serial,
+                                                        mob.X,
+                                                        mob.Y,
+                                                        Utility.MathHelper.PercetangeOf(mob.Hits, mob.HitsMax),
+                                                        MapIndex,
+                                                        true,
+                                                        mob.Name);
+                            }
+                            else if (Party.Leader != 0 && Party.Contains(mob))
+                            {
+                                WMapManager.AddOrUpdate(
+                                                        mob.Serial,
+                                                        mob.X,
+                                                        mob.Y,
+                                                        Utility.MathHelper.PercetangeOf(mob.Hits, mob.HitsMax),
+                                                        MapIndex,
+                                                        false,
+                                                        mob.Name);
+                            }
+                        }
                     }
 
-                    if (item.IsDestroyed)
-                        _toRemove.Add(item);
+                    if (remove)
+                    {
+                        _toRemove.Add(entity.Serial);
+                    }
                 }
+
 
                 if (_toRemove.Count != 0)
                 {
                     for (int i = 0; i < _toRemove.Count; i++)
-                        Items.Remove(_toRemove[i]);
+                        Objects.Remove(_toRemove[i]);
 
                     _toRemove.Clear();
                 }
 
+                
                 _effectManager.Update(totalMS, frameMS);
-
                 WorldTextManager.Update(totalMS, frameMS);
                 WMapManager.RemoveUnupdatedWEntity();
             }
@@ -298,20 +296,22 @@ namespace ClassicUO.Game
 
         public static bool Contains(uint serial)
         {
-            if (SerialHelper.IsItem(serial))
-                return Items.Contains(serial);
-
-            return SerialHelper.IsMobile(serial) && Mobiles.Contains(serial);
+            return Objects.Contains(serial);
         }
 
         public static Entity Get(uint serial)
         {
-            Entity ent = null;
+            Entity ent = Objects.Get(serial);
 
-            if (SerialHelper.IsItem(serial))
-                ent = Items.Get(serial);
-            else if (SerialHelper.IsMobile(serial))
-                ent = Mobiles.Get(serial);
+            if (ent != null && ent.IsDestroyed)
+                ent = null;
+
+            return ent;
+        }
+
+        public static T Get<T>(uint serial) where T : Entity
+        {
+            T ent = Objects.Get(serial) as T;
 
             if (ent != null && ent.IsDestroyed)
                 ent = null;
@@ -321,18 +321,18 @@ namespace ClassicUO.Game
 
         public static Item GetOrCreateItem(uint serial)
         {
-            Item item = Items.Get(serial);
+            Item item = (Item) Objects.Get(serial);
 
             if (item != null && item.IsDestroyed)
             {
-                Items.Remove(serial);
+                Objects.Remove(serial);
                 item = null;
             }
 
             if (item == null /*|| item.IsDestroyed*/)
             {
                 item = Item.Create(serial);
-                Items.Add(item);
+                Objects.Add(item);
             }
 
             return item;
@@ -340,83 +340,51 @@ namespace ClassicUO.Game
 
         public static Mobile GetOrCreateMobile(uint serial)
         {
-            Mobile mob = Mobiles.Get(serial);
+            Mobile mob = (Mobile) Get(serial);
 
             if (mob != null && mob.IsDestroyed)
             {
-                Mobiles.Remove(serial);
+                Objects.Remove(serial);
                 mob = null;
             }
 
-            if (mob == null /*|| mob.IsDestroyed*/)
+            if (mob == null)
             {
                 mob = Mobile.Create(serial);
-                Mobiles.Add(mob);
+                Objects.Add(mob);
             }
 
             return mob;
         }
 
-        public static bool RemoveItem(uint serial, bool forceRemove = false)
+        public static bool RemoveObject(uint serial, bool force_remotion = false)
         {
-            Item item = Items.Get(serial);
+            var entity = Get(serial);
 
-            if (item == null)
+            if (entity == null)
                 return false;
 
-            if (SerialHelper.IsValid(item.Container))
+            if (entity is Item it && SerialHelper.IsValid(it.Container))
             {
-                Entity ent = Get(item.Container);
-
-                if (ent != null)
-                {
-                    ent.Remove(item);
-                }
+                Get(it.Container)?.Remove(it);
             }
 
-            var first = item.Items;
+            var first = entity.Items;
 
             while (first != null)
             {
                 var next = first.Next;
 
-                RemoveItem(first as Item, forceRemove);
+                RemoveObject(first as Entity, force_remotion);
 
                 first = next;
             }
 
-            item.Clear();
-            item.Destroy();
+            entity.Clear();
+            entity.Destroy();
 
-            if (forceRemove)
-                Items.Remove(serial);
-
-            return true;
-        }
-
-        public static bool RemoveMobile(uint serial, bool forceRemove = false)
-        {
-            Mobile mobile = Mobiles.Get(serial);
-
-            if (mobile == null)
-                return false;
-
-            var first = mobile.Items;
-
-            while (first != null)
-            {
-                var next = first.Next;
-
-                RemoveItem(first as Item, forceRemove);
-
-                first = next;
-            }
-
-            mobile.Clear();
-            mobile.Destroy();
-
-            if (forceRemove)
-                Mobiles.Remove(serial);
+            if (force_remotion)
+                Objects.Remove(serial);
 
             return true;
         }
@@ -450,257 +418,269 @@ namespace ClassicUO.Game
             {
                 if (scanMode == SCAN_MODE_OBJECT.SMO_NEAREST)
                 {
-                    foreach (Item item in Items)
+                    foreach (Entity entity in Objects)
+                    {
+                        if (entity is Item item)
+                        {
+                            if (item.IsMulti || item.IsDestroyed || !item.OnGround)
+                                continue;
+
+                            var dist = item.Distance;
+
+                            if (dist < distance)
+                                distance = dist;
+                        }
+                    }
+                }
+
+                foreach (Entity entity in Objects)
+                {
+                    if (entity is Item item)
                     {
                         if (item.IsMulti || item.IsDestroyed || !item.OnGround)
                             continue;
 
-                        var dist = item.Distance;
+                        if (!SerialHelper.IsValid(serial))
+                            return item;
 
-                        if (dist < distance)
-                            distance = dist;
-                    }
-                }
-
-                foreach (Item item in Items)
-                {
-                    if (item.IsMulti || item.IsDestroyed || !item.OnGround)
-                        continue;
-
-                    if (!SerialHelper.IsValid(serial))
-                        return item;
-
-                    if (scanMode == SCAN_MODE_OBJECT.SMO_NEXT)
-                    {
-                        if (serial == item)
+                        if (scanMode == SCAN_MODE_OBJECT.SMO_NEXT)
                         {
-                            currentTargetFound = true;
-                            continue;
-                        }
+                            if (serial == item)
+                            {
+                                currentTargetFound = true;
+                                continue;
+                            }
 
-                        if (first == null)
+                            if (first == null)
+                                first = item;
+
+                            if (currentTargetFound)
+                            {
+                                selected = item;
+                                break;
+                            }
+                        }
+                        else if (scanMode == SCAN_MODE_OBJECT.SMO_PREV)
+                        {
+                            if (!currentTargetFound && first != null)
+                                selected = first;
+
+                            if (serial == item)
+                            {
+                                currentTargetFound = true;
+                                continue;
+                            }
+
                             first = item;
-
-                        if (currentTargetFound)
+                        }
+                        else if (scanMode == SCAN_MODE_OBJECT.SMO_NEAREST)
                         {
-                            selected = item;
+                            if (item.Distance > distance)
+                                continue;
+
+                            if (serial == item.Serial)
+                            {
+                                currentTargetFound = true;
+                                continue;
+                            }
+
+                            if (first == null)
+                                first = item;
+
+                            if (currentTargetFound)
+                            {
+                                selected = item;
+                                break;
+                            }
+                        }
+                        else
                             break;
-                        }
                     }
-                    else if (scanMode == SCAN_MODE_OBJECT.SMO_PREV)
-                    {
-                        if (!currentTargetFound && first != null)
-                            selected = first;
-
-                        if (serial == item)
-                        {
-                            currentTargetFound = true;
-                            continue;
-                        }
-
-                        first = item;
-                    }
-                    else if (scanMode == SCAN_MODE_OBJECT.SMO_NEAREST)
-                    {
-                        if (item.Distance > distance)
-                            continue;
-
-                        if (serial == item.Serial)
-                        {
-                            currentTargetFound = true;
-                            continue;
-                        }
-
-                        if (first == null)
-                            first = item;
-
-                        if (currentTargetFound)
-                        {
-                            selected = item;
-                            break;
-                        }
-                    }
-                    else
-                        break;
                 }
             }
             else
             {
                 if (scanMode == SCAN_MODE_OBJECT.SMO_NEAREST)
                 {
-                    foreach (Mobile mobile in Mobiles)
+                    foreach (Entity entity in Objects)
+                    {
+                        if (entity is Mobile mobile)
+                        {
+                            if (mobile.IsDestroyed || mobile == Player)
+                                continue;
+
+                            if (scanType == SCAN_TYPE_OBJECT.STO_PARTY)
+                            {
+                                if (!Party.Contains(mobile))
+                                {
+                                    continue;
+                                }
+                            }
+                            else if (scanType == SCAN_TYPE_OBJECT.STO_FOLLOWERS)
+                            {
+                                if (!(mobile.IsRenamable &&
+                                      mobile.NotorietyFlag != NotorietyFlag.Invulnerable &&
+                                      mobile.NotorietyFlag != NotorietyFlag.Enemy))
+                                {
+                                    continue;
+                                }
+                            }
+                            else if (scanType == SCAN_TYPE_OBJECT.STO_HOSTILE)
+                            {
+                                if (mobile.NotorietyFlag == NotorietyFlag.Ally ||
+                                    mobile.NotorietyFlag == NotorietyFlag.Innocent ||
+                                    mobile.NotorietyFlag == NotorietyFlag.Invulnerable)
+                                {
+                                    continue;
+                                }
+                            }
+
+                            var dist = mobile.Distance;
+
+                            if (dist < distance)
+                                distance = dist;
+                        }
+                    }
+                }
+
+                foreach (Entity entity in Objects)
+                {
+                    if (entity is Mobile mobile)
                     {
                         if (mobile.IsDestroyed || mobile == Player)
                             continue;
 
-                        if (scanType == SCAN_TYPE_OBJECT.STO_PARTY)
+                        if (scanMode == SCAN_MODE_OBJECT.SMO_NEXT)
                         {
-                            if (!Party.Contains(mobile))
+                            if (scanType == SCAN_TYPE_OBJECT.STO_PARTY)
                             {
+                                if (!Party.Contains(mobile))
+                                {
+                                    continue;
+                                }
+                            }
+                            else if (scanType == SCAN_TYPE_OBJECT.STO_FOLLOWERS)
+                            {
+                                if (!(mobile.IsRenamable &&
+                                    mobile.NotorietyFlag != NotorietyFlag.Invulnerable &&
+                                    mobile.NotorietyFlag != NotorietyFlag.Enemy))
+                                {
+                                    continue;
+                                }
+                            }
+                            else if (scanType == SCAN_TYPE_OBJECT.STO_HOSTILE)
+                            {
+                                if (mobile.NotorietyFlag == NotorietyFlag.Ally ||
+                                    mobile.NotorietyFlag == NotorietyFlag.Innocent ||
+                                    mobile.NotorietyFlag == NotorietyFlag.Invulnerable)
+                                {
+                                    continue;
+                                }
+                            }
+
+                            if (serial == mobile)
+                            {
+                                currentTargetFound = true;
                                 continue;
                             }
-                        }
-                        else if (scanType == SCAN_TYPE_OBJECT.STO_FOLLOWERS)
-                        {
-                            if (!(mobile.IsRenamable &&
-                                  mobile.NotorietyFlag != NotorietyFlag.Invulnerable &&
-                                  mobile.NotorietyFlag != NotorietyFlag.Enemy))
+
+                            if (first == null)
+                                first = mobile;
+
+                            if (currentTargetFound)
                             {
-                                continue;
+                                selected = mobile;
+                                break;
                             }
                         }
-                        else if (scanType == SCAN_TYPE_OBJECT.STO_HOSTILE)
+                        else if (scanMode == SCAN_MODE_OBJECT.SMO_PREV)
                         {
-                            if (mobile.NotorietyFlag == NotorietyFlag.Ally ||
-                                mobile.NotorietyFlag == NotorietyFlag.Innocent ||
-                                mobile.NotorietyFlag == NotorietyFlag.Invulnerable)
+                            if (scanType == SCAN_TYPE_OBJECT.STO_PARTY)
                             {
+                                if (!Party.Contains(mobile))
+                                {
+                                    continue;
+                                }
+                            }
+                            else if (scanType == SCAN_TYPE_OBJECT.STO_FOLLOWERS)
+                            {
+                                if (!(mobile.IsRenamable &&
+                                      mobile.NotorietyFlag != NotorietyFlag.Invulnerable &&
+                                      mobile.NotorietyFlag != NotorietyFlag.Enemy))
+                                {
+                                    continue;
+                                }
+                            }
+                            else if (scanType == SCAN_TYPE_OBJECT.STO_HOSTILE)
+                            {
+                                if (mobile.NotorietyFlag == NotorietyFlag.Ally ||
+                                    mobile.NotorietyFlag == NotorietyFlag.Innocent ||
+                                    mobile.NotorietyFlag == NotorietyFlag.Invulnerable)
+                                {
+                                    continue;
+                                }
+                            }
+
+                            if (!currentTargetFound && first != null)
+                                selected = first;
+
+                            if (serial == mobile)
+                            {
+                                currentTargetFound = true;
                                 continue;
                             }
-                        }
 
-                        var dist = mobile.Distance;
-
-                        if (dist < distance)
-                            distance = dist;
-                    }
-                }
-
-                foreach (Mobile mobile in Mobiles)
-                {
-                    if (mobile.IsDestroyed || mobile == Player)
-                        continue;
-
-                    if (scanMode == SCAN_MODE_OBJECT.SMO_NEXT)
-                    {
-                        if (scanType == SCAN_TYPE_OBJECT.STO_PARTY)
-                        {
-                            if (!Party.Contains(mobile))
-                            {
-                                continue;
-                            }
-                        }
-                        else if (scanType == SCAN_TYPE_OBJECT.STO_FOLLOWERS)
-                        {
-                            if (!(mobile.IsRenamable &&
-                                mobile.NotorietyFlag != NotorietyFlag.Invulnerable &&
-                                mobile.NotorietyFlag != NotorietyFlag.Enemy))
-                            {
-                                continue;
-                            }
-                        }
-                        else if (scanType == SCAN_TYPE_OBJECT.STO_HOSTILE)
-                        {
-                            if (mobile.NotorietyFlag == NotorietyFlag.Ally ||
-                                mobile.NotorietyFlag == NotorietyFlag.Innocent ||
-                                mobile.NotorietyFlag == NotorietyFlag.Invulnerable)
-                            {
-                                continue;
-                            }
-                        }
-
-                        if (serial == mobile)
-                        {
-                            currentTargetFound = true;
-                            continue;
-                        }
-
-                        if (first == null)
                             first = mobile;
-
-                        if (currentTargetFound)
+                        }
+                        else if (scanMode == SCAN_MODE_OBJECT.SMO_NEAREST)
                         {
-                            selected = mobile;
+                            if (scanType == SCAN_TYPE_OBJECT.STO_PARTY)
+                            {
+                                if (!Party.Contains(mobile))
+                                {
+                                    continue;
+                                }
+                            }
+                            else if (scanType == SCAN_TYPE_OBJECT.STO_FOLLOWERS)
+                            {
+                                if (!(mobile.IsRenamable &&
+                                      mobile.NotorietyFlag != NotorietyFlag.Invulnerable &&
+                                      mobile.NotorietyFlag != NotorietyFlag.Enemy))
+                                {
+                                    continue;
+                                }
+                            }
+                            else if (scanType == SCAN_TYPE_OBJECT.STO_HOSTILE)
+                            {
+                                if (mobile.NotorietyFlag == NotorietyFlag.Ally ||
+                                    mobile.NotorietyFlag == NotorietyFlag.Innocent ||
+                                    mobile.NotorietyFlag == NotorietyFlag.Invulnerable)
+                                {
+                                    continue;
+                                }
+                            }
+
+                            if (mobile.Distance > distance)
+                                continue;
+
+                            if (serial == mobile.Serial)
+                            {
+                                currentTargetFound = true;
+                                continue;
+                            }
+
+                            if (first == null)
+                                first = mobile;
+
+                            if (currentTargetFound)
+                            {
+                                selected = mobile;
+                                break;
+                            }
+                        }
+                        else
                             break;
-                        }
                     }
-                    else if (scanMode == SCAN_MODE_OBJECT.SMO_PREV)
-                    {
-                        if (scanType == SCAN_TYPE_OBJECT.STO_PARTY)
-                        {
-                            if (!Party.Contains(mobile))
-                            {
-                                continue;
-                            }
-                        }
-                        else if (scanType == SCAN_TYPE_OBJECT.STO_FOLLOWERS)
-                        {
-                            if (!(mobile.IsRenamable &&
-                                  mobile.NotorietyFlag != NotorietyFlag.Invulnerable &&
-                                  mobile.NotorietyFlag != NotorietyFlag.Enemy))
-                            {
-                                continue;
-                            }
-                        }
-                        else if (scanType == SCAN_TYPE_OBJECT.STO_HOSTILE)
-                        {
-                            if (mobile.NotorietyFlag == NotorietyFlag.Ally ||
-                                mobile.NotorietyFlag == NotorietyFlag.Innocent ||
-                                mobile.NotorietyFlag == NotorietyFlag.Invulnerable)
-                            {
-                                continue;
-                            }
-                        }
-
-                        if (!currentTargetFound && first != null)
-                            selected = first;
-
-                        if (serial == mobile)
-                        {
-                            currentTargetFound = true;
-                            continue;
-                        }
-
-                        first = mobile;
-                    }
-                    else if (scanMode == SCAN_MODE_OBJECT.SMO_NEAREST)
-                    {
-                        if (scanType == SCAN_TYPE_OBJECT.STO_PARTY)
-                        {
-                            if (!Party.Contains(mobile))
-                            {
-                                continue;
-                            }
-                        }
-                        else if (scanType == SCAN_TYPE_OBJECT.STO_FOLLOWERS)
-                        {
-                            if (!(mobile.IsRenamable &&
-                                  mobile.NotorietyFlag != NotorietyFlag.Invulnerable &&
-                                  mobile.NotorietyFlag != NotorietyFlag.Enemy))
-                            {
-                                continue;
-                            }
-                        }
-                        else if (scanType == SCAN_TYPE_OBJECT.STO_HOSTILE)
-                        {
-                            if (mobile.NotorietyFlag == NotorietyFlag.Ally ||
-                                mobile.NotorietyFlag == NotorietyFlag.Innocent ||
-                                mobile.NotorietyFlag == NotorietyFlag.Invulnerable)
-                            {
-                                continue;
-                            }
-                        }
-
-                        if (mobile.Distance > distance)
-                            continue;
-
-                        if (serial == mobile.Serial)
-                        {
-                            currentTargetFound = true;
-                            continue;
-                        }
-
-                        if (first == null)
-                            first = mobile;
-
-                        if (currentTargetFound)
-                        {
-                            selected = mobile;
-                            break;
-                        }
-                    }
-                    else
-                        break;
                 }
             }
 
@@ -714,21 +694,16 @@ namespace ClassicUO.Game
 
         public static void Clear()
         {
-            foreach (Mobile mobile in Mobiles)
+            foreach (var entity in Objects)
             {
-                RemoveMobile(mobile);
+                RemoveObject(entity);
             }
 
-            foreach (Item item in Items)
-            {
-                RemoveItem(item);
-            }
 
             ObjectToRemove = 0;
             LastObject = 0;
             HouseManager?.Clear();
-            Items.Clear();
-            Mobiles.Clear();
+            Objects.Clear();
             Player?.Destroy();
             Player = null;
             Map?.Destroy();
@@ -767,38 +742,21 @@ namespace ClassicUO.Game
                 Player = null;
             }
 
-            foreach (Item item in Items)
+            foreach (var entity in Objects)
             {
                 if (noplayer && Player != null && !Player.IsDestroyed)
                 {
-                    if (item.RootContainer == Player)
+                    if (entity == Player || (entity is Item item && item.RootContainer == Player))
                         continue;
                 }
 
-                _toRemove.Add(item);
+                _toRemove.Add(entity.Serial);
             }
 
+            
             foreach (var serial in _toRemove)
             {
-                RemoveItem(serial, true);
-            }
-
-            _toRemove.Clear();
-
-            foreach (Mobile mob in Mobiles)
-            {
-                if (noplayer && Player != null && !Player.IsDestroyed)
-                {
-                    if (mob == Player)
-                        continue;
-                }
-
-                _toRemove.Add(mob);
-            }
-
-            foreach (var serial in _toRemove)
-            {
-                RemoveMobile(serial, true);
+                RemoveObject(serial, true);
             }
 
             _toRemove.Clear();

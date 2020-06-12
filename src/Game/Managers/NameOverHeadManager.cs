@@ -52,7 +52,7 @@ namespace ClassicUO.Game.Managers
             set { ProfileManager.Current.NameOverheadToggled = value; }
         }
 
-        public static bool IsAllowed(Entity serial)
+        public static bool IsAllowed(uint serial)
         {
             if (serial == null)
                 return false;
@@ -60,13 +60,13 @@ namespace ClassicUO.Game.Managers
             if (TypeAllowed == NameOverheadTypeAllowed.All)
                 return true;
 
-            if (SerialHelper.IsItem(serial.Serial) && TypeAllowed == NameOverheadTypeAllowed.Items)
+            if (SerialHelper.IsItem(serial) && TypeAllowed == NameOverheadTypeAllowed.Items)
                 return true;
 
-            if (SerialHelper.IsMobile(serial.Serial) && TypeAllowed.HasFlag(NameOverheadTypeAllowed.Mobiles))
+            if (SerialHelper.IsMobile(serial) && TypeAllowed.HasFlag(NameOverheadTypeAllowed.Mobiles))
                 return true;
 
-            if (TypeAllowed.HasFlag(NameOverheadTypeAllowed.Corpses) && SerialHelper.IsItem(serial.Serial) && World.Items.Get(serial)?.IsCorpse == true)
+            if (TypeAllowed.HasFlag(NameOverheadTypeAllowed.Corpses) && SerialHelper.IsItem(serial) && World.Get(serial)?.Graphic == 0x2006)
                 return true;
 
             return false;

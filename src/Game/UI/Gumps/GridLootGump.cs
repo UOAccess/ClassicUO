@@ -52,7 +52,7 @@ namespace ClassicUO.Game.UI.Gumps
 
         public GridLootGump(uint local) : base(local, 0)
         {
-            _corpse = World.Items.Get(local);
+            _corpse = World.Get<Item>(local);
 
             if (_corpse == null)
             {
@@ -283,7 +283,7 @@ namespace ClassicUO.Game.UI.Gumps
             {
                 LocalSerial = serial;
 
-                Item item = World.Items.Get(serial);
+                Item item = World.Get<Item>(serial);
 
                 if (item == null)
                 {

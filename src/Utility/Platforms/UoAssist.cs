@@ -286,7 +286,8 @@ namespace ClassicUO.Utility.Platforms
 
                         if (lParam == 1 && World.InGame)
                         {
-                            foreach (Item item in World.Items.Where(s => s.IsMulti))
+                            // FIXME: remove linq -.-
+                            foreach (Item item in World.Objects.Where(s => s is Item it && it.IsMulti))
                                 PostMessage((IntPtr) wParam, (uint) UOAMessage.ADD_MULTI, (IntPtr) ((item.X & 0xFFFF) | ((item.Y & 0xFFFF) << 16)), (IntPtr) item.Graphic);
                         }
 

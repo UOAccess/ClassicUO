@@ -39,7 +39,7 @@ namespace ClassicUO.Game.UI.Gumps
 
         public SplitMenuGump(uint serial, Point offset) : base(serial, 0)
         {
-            Item item = World.Items.Get(serial);
+            Item item = World.Get<Item>(serial);
 
             if (item == null || item.IsDestroyed)
             {
@@ -130,7 +130,7 @@ namespace ClassicUO.Game.UI.Gumps
 
         public override void Update(double totalMS, double frameMS)
         {
-            Item item = World.Items.Get(LocalSerial);
+            Item item = World.Get<Item>(LocalSerial);
 
             if (item == null || item.IsDestroyed)
                 Dispose();

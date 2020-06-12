@@ -160,22 +160,25 @@ namespace ClassicUO.Game.UI.Gumps
                 int w = Width >> 1;
                 int h = Height >> 1;
 
-                foreach (Mobile mob in World.Mobiles)
+                foreach (Entity entity in World.Objects)
                 {
-                    if (mob == World.Player)
-                        continue;
+                    if (entity is Mobile mob)
+                    {
+                        if (mob == World.Player)
+                            continue;
 
-                    int xx = mob.X - World.Player.X;
-                    int yy = mob.Y - World.Player.Y;
+                        int xx = mob.X - World.Player.X;
+                        int yy = mob.Y - World.Player.Y;
 
-                    int gx = xx - yy;
-                    int gy = xx + yy;
+                        int gx = xx - yy;
+                        int gy = xx + yy;
 
-                    _hueVector.Z = 0;
+                        _hueVector.Z = 0;
 
-                    ShaderHuesTraslator.GetHueVector(ref _hueVector, Notoriety.GetHue(mob.NotorietyFlag));
+                        ShaderHuesTraslator.GetHueVector(ref _hueVector, Notoriety.GetHue(mob.NotorietyFlag));
 
-                    batcher.Draw2D(_mobilesIndicator, x + w + gx, y + h + gy, 2, 2, ref _hueVector);
+                        batcher.Draw2D(_mobilesIndicator, x + w + gx, y + h + gy, 2, 2, ref _hueVector);
+                    }
                 }
 
                 //DRAW DOT OF PLAYER

@@ -57,7 +57,7 @@ namespace ClassicUO.Game.Managers
                 {
                     if (corpse != 0)
                     {
-                        Item item = World.Items.Get(corpse);
+                        Item item = World.Get<Item>(corpse);
                         if (item != null)
                             item.Layer = (Layer) ((c.Direction & Direction.Mask) | (c.IsRunning ? Direction.Running : 0));
                     }
@@ -94,7 +94,7 @@ namespace ClassicUO.Game.Managers
 
                 if (c.ObjectSerial == serial)
                 {
-                    return World.Items.Get(c.CorpseSerial);
+                    return World.Get<Item>(c.CorpseSerial);
                 }
             }
 

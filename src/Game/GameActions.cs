@@ -87,8 +87,9 @@ namespace ClassicUO.Game
         {
             if (!SerialHelper.IsItem(serial)) return false;
 
-            Item item = World.Items.Get(serial);
-            if (item == null || !item.IsCorpse || item.IsDestroyed) return false;
+            Entity item = World.Get(serial);
+            if (item == null || item.Graphic != 0x2006 || item.IsDestroyed) 
+                return false;
 
             World.Player.ManualOpenedCorpses.Add(serial);
             DoubleClick(serial);
@@ -100,9 +101,9 @@ namespace ClassicUO.Game
         {
             if (ProfileManager.Current.EnabledCriminalActionQuery)
             {
-                Mobile m = World.Mobiles.Get(serial);
+                Entity entity = World.Get(serial);
 
-                if (m != null && (World.Player.NotorietyFlag == NotorietyFlag.Innocent || World.Player.NotorietyFlag == NotorietyFlag.Ally) && m.NotorietyFlag == NotorietyFlag.Innocent && m != World.Player)
+                if (entity != null && (World.Player.NotorietyFlag == NotorietyFlag.Innocent || World.Player.NotorietyFlag == NotorietyFlag.Ally) && entity is Mobile m && m.NotorietyFlag == NotorietyFlag.Innocent && m != World.Player)
                 {
                     QuestionGump messageBox = new QuestionGump("This may flag\nyou criminal!",
                                                                s =>
@@ -128,7 +129,7 @@ namespace ClassicUO.Game
 
         public static void DoubleClick(uint serial)
         {
-            if (SerialHelper.IsMobile(serial) && World.Player.InWarMode)
+            if (World.Get<Mobile>(serial) != null && serial != World.Player && World.Player.InWarMode)
             {
                 Attack(serial);
             }
@@ -345,14 +346,12 @@ namespace ClassicUO.Game
 
         public static void AllNames()
         {
-            foreach (Mobile mobile in World.Mobiles)
-                if (mobile != World.Player)
-                    Socket.Send(new PClickRequest(mobile));
-
-            foreach (Item item in World.Items)
+            foreach (Entity entity in World.Objects)
             {
-                if (item.IsCorpse)
-                    Socket.Send(new PClickRequest(item));
+                if ((entity is Mobile && entity != World.Player) || entity.Graphic == 0x2006)
+                {
+                    Socket.Send(new PClickRequest(entity.Serial));
+                }
             }
         }
 
@@ -422,7 +421,7 @@ namespace ClassicUO.Game
                     ? backpack.Serial
                     : ProfileManager.Current.GrabBagSerial;
 
-            if (!World.Items.Contains(bag))
+            if (!World.Contains(bag))
             {
                 Print("Grab Bag not found, setting to Backpack.");
                 ProfileManager.Current.GrabBagSerial = 0;

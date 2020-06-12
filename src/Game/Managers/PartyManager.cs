@@ -213,7 +213,7 @@ namespace ClassicUO.Game.Managers
         {
             get
             {
-                var mobile = World.Mobiles.Get(Serial);
+                var mobile = World.Get(Serial);
 
                 if (mobile != null)
                 {

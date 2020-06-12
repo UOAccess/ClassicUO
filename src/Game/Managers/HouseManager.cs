@@ -83,7 +83,7 @@ namespace ClassicUO.Game.Managers
                 //    currY = World.Player.Y;
                 //}
 
-                Item found = World.Items.Get(serial);
+                Item found = World.Get<Item>(serial);
 
                 if (found == null)
                     return true;
@@ -100,7 +100,7 @@ namespace ClassicUO.Game.Managers
         {
             if (obj != null && TryGetHouse(house, out _))
             {
-                Item found = World.Items.Get(house);
+                Item found = World.Get<Item>(house);
 
                 if (found == null || !found.MultiInfo.HasValue)
                     return true;

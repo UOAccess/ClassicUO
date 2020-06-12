@@ -844,7 +844,7 @@ namespace ClassicUO.Game.UI.Gumps
             {
                 foreach (House house in World.HouseManager.Houses)
                 {
-                    Item item = World.Items.Get(house.Serial);
+                    Item item = World.Get<Item>(house.Serial);
 
                     if (item != null)
                         DrawMulti(batcher, item.X, item.Y, gX, gY, halfWidth, halfHeight, Zoom);
@@ -853,30 +853,35 @@ namespace ClassicUO.Game.UI.Gumps
 
             if (_showMobiles)
             {
-                foreach (Mobile mob in World.Mobiles)
+                foreach (Entity entity in World.Objects)
                 {
-                    if (mob == World.Player)
-                        continue;
-
-                    if (mob.NotorietyFlag != NotorietyFlag.Ally)
-                        DrawMobile(batcher, mob, gX, gY, halfWidth, halfHeight, Zoom, Color.Red);
-                    else
+                    if (entity is Mobile mob)
                     {
-                        if (mob != null && mob.Distance <= World.ClientViewRange)
-                        {
-                            var wme = World.WMapManager.GetEntity(mob);
-                            if (wme != null)
-                                wme.Name = mob.Name;
-                            else
-                                DrawMobile(batcher, mob, gX, gY, halfWidth, halfHeight, Zoom, Color.Lime, true, true,
-                                    _showGroupBar);
-                        }
+                        if (mob == World.Player)
+                            continue;
+
+                        if (mob.NotorietyFlag != NotorietyFlag.Ally)
+                            DrawMobile(batcher, mob, gX, gY, halfWidth, halfHeight, Zoom, Color.Red);
                         else
                         {
-                            var wme = World.WMapManager.GetEntity(mob.Serial);
-                            if (wme != null && wme.IsGuild)
+                            if (mob != null && mob.Distance <= World.ClientViewRange)
                             {
-                                DrawWMEntity(batcher, wme, gX, gY, halfWidth, halfHeight, Zoom);
+                                var wme = World.WMapManager.GetEntity(mob);
+
+                                if (wme != null)
+                                    wme.Name = mob.Name;
+                                else
+                                    DrawMobile(batcher, mob, gX, gY, halfWidth, halfHeight, Zoom, Color.Lime, true, true,
+                                               _showGroupBar);
+                            }
+                            else
+                            {
+                                var wme = World.WMapManager.GetEntity(mob.Serial);
+
+                                if (wme != null && wme.IsGuild)
+                                {
+                                    DrawWMEntity(batcher, wme, gX, gY, halfWidth, halfHeight, Zoom);
+                                }
                             }
                         }
                     }
@@ -899,7 +904,7 @@ namespace ClassicUO.Game.UI.Gumps
 
                     if (partyMember != null && SerialHelper.IsValid(partyMember.Serial))
                     {
-                        var mob = World.Mobiles.Get(partyMember.Serial);
+                        var mob = World.Get<Mobile>(partyMember.Serial);
 
                         if (mob != null && mob.Distance <= World.ClientViewRange)
                         {

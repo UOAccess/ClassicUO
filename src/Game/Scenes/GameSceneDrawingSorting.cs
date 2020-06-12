@@ -384,7 +384,7 @@ namespace ClassicUO.Game.Scenes
                 }
 
 
-                if (useObjectHandles && NameOverHeadManager.IsAllowed(obj as Entity))
+                if (useObjectHandles && obj is Entity ent && NameOverHeadManager.IsAllowed(ent.Serial))
                 {
                     if ((ismobile ||
                          iscorpse ||

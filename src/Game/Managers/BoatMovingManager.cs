@@ -65,7 +65,7 @@ namespace ClassicUO.Game.Managers
 
         public static void AddStep(uint serial, byte speed, Direction movingDir, Direction facingDir, ushort x, ushort y, sbyte z)
         {
-            Item item = World.Items.Get(serial);
+            Item item = World.Get<Item>(serial);
             if (item == null || item.IsDestroyed) 
             {
                 return;
@@ -127,7 +127,7 @@ namespace ClassicUO.Game.Managers
         {
             if (_steps.TryGetValue(serial, out var deque) && deque.Count != 0)
             {
-                Item multiItem = World.Items.Get(serial);
+                Item multiItem = World.Get<Item>(serial);
 
                 if (multiItem != null)
                 {
@@ -212,7 +212,7 @@ namespace ClassicUO.Game.Managers
                 {
                     ref var step = ref deques.Front();
 
-                    Item item = World.Items.Get(step.Serial);
+                    Item item = World.Get<Item>(step.Serial);
 
                     if (item == null || item.IsDestroyed)
                     {
@@ -321,7 +321,7 @@ namespace ClassicUO.Game.Managers
         {
             if (_items.TryGetValue(serial, out var list))
             {
-                Item item = World.Items.Get(serial);
+                Item item = World.Get<Item>(serial);
 
                 for (int i = 0; i < list.Count; i++)
                 {

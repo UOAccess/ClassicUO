@@ -305,9 +305,9 @@ namespace ClassicUO.Game.UI.Gumps
                             if (entity.Distance < Constants.DRAG_ITEMS_DISTANCE)
                             {
                                 if (SerialHelper.IsItem(LocalSerial))
-                                    scene.DropHeldItemToContainer(World.Items.Get(LocalSerial));
+                                    scene.DropHeldItemToContainer(World.Get(LocalSerial));
                                 else if (SerialHelper.IsMobile(LocalSerial))
-                                    scene.MergeHeldItem(World.Mobiles.Get(LocalSerial));
+                                    scene.MergeHeldItem(World.Get(LocalSerial));
                             }
                             else
                                 scene.Audio.PlaySound(0x0051);
@@ -336,7 +336,7 @@ namespace ClassicUO.Game.UI.Gumps
 
             if (SerialHelper.IsMobile(LocalSerial))
             {
-                Mobile m = World.Mobiles.Get(LocalSerial);
+                Mobile m = World.Get<Mobile>(LocalSerial);
 
                 if (m == null)
                 {
@@ -395,7 +395,7 @@ namespace ClassicUO.Game.UI.Gumps
 
             if (SerialHelper.IsMobile(LocalSerial))
             {
-                Mobile m = World.Mobiles.Get(LocalSerial);
+                Mobile m = World.Get<Mobile>(LocalSerial);
 
                 if (m == null)
                 {
@@ -428,7 +428,7 @@ namespace ClassicUO.Game.UI.Gumps
             }
             else if (SerialHelper.IsItem(LocalSerial))
             {
-                Item item = World.Items.Get(LocalSerial);
+                Item item = World.Get<Item>(LocalSerial);
 
                 if (item == null)
                 {

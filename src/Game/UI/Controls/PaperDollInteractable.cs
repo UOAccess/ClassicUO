@@ -93,7 +93,7 @@ namespace ClassicUO.Game.UI.Controls
             if (IsDisposed)
                 return;
 
-            Mobile mobile = World.Mobiles.Get(LocalSerial);
+            Mobile mobile = World.Get<Mobile>(LocalSerial);
 
             if (mobile == null || mobile.IsDestroyed)
             {
@@ -324,7 +324,7 @@ namespace ClassicUO.Game.UI.Controls
                     return;
                 }
 
-                Mobile container = World.Mobiles.Get(_parentSerial);
+                var container = World.Get(_parentSerial);
 
                 if (MouseIsOver)
                 {

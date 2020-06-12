@@ -56,7 +56,7 @@ namespace ClassicUO.Game.Scenes
             if (World.Player.IsDead || ItemHold.Enabled)
                 return false;
 
-            Item item = World.Items.Get(serial);
+            Item item = World.Get<Item>(serial);
 
             if (item == null || item.IsDestroyed || item.IsMulti || item.OnGround && (item.IsLocked || item.Distance > Constants.DRAG_ITEMS_DISTANCE))
                 return false;

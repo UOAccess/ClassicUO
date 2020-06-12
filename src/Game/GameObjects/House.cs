@@ -49,7 +49,7 @@ namespace ClassicUO.Game.GameObjects
 
         public Multi Add(ushort graphic, ushort hue, int x, int y, sbyte z, bool iscustom)
         {
-            Item item = World.Items.Get(Serial);
+            Item item = World.Get<Item>(Serial);
 
             Multi m = Multi.Create(graphic);
             m.Hue = hue;
@@ -68,7 +68,7 @@ namespace ClassicUO.Game.GameObjects
 
         public void ClearCustomHouseComponents(CUSTOM_HOUSE_MULTI_OBJECT_FLAGS state)
         {
-            Item item = World.Items.Get(Serial);
+            Item item = World.Get<Item>(Serial);
 
             if (item != null)
             {
@@ -117,7 +117,7 @@ namespace ClassicUO.Game.GameObjects
 
         public void Fill(RawList<CustomBuildObject> list)
         {
-            Item item = World.Items.Get(Serial);
+            Item item = World.Get<Item>(Serial);
 
             ClearCustomHouseComponents(0);
 
@@ -130,7 +130,7 @@ namespace ClassicUO.Game.GameObjects
 
         public void Generate(bool recalculate = false, bool pushtotile = true, bool removePreview = false)
         {
-            Item item = World.Items.Get(Serial);
+            Item item = World.Get<Item>(Serial);
             //ClearCustomHouseComponents(0);
 
             foreach (Multi s in Components)
@@ -168,7 +168,7 @@ namespace ClassicUO.Game.GameObjects
 
         public void ClearComponents(bool removeCustomOnly = false)
         {
-            Item item = World.Items.Get(Serial);
+            Item item = World.Get<Item>(Serial);
 
             if (item != null && !item.IsDestroyed)
                 item.WantUpdateMulti = true;

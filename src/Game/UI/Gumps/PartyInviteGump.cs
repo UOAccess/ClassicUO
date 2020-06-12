@@ -40,7 +40,7 @@ namespace ClassicUO.Game.UI.Gumps
                 Alpha = 0.2f
             };
 
-            Mobile mobile = World.Mobiles.Get(inviter);
+            Mobile mobile = World.Get<Mobile>(inviter);
 
             var text = new Label($"{ (mobile == null || string.IsNullOrEmpty(mobile.Name) ? "[no-name]" : mobile.Name) }\n has invited you to join a party.", true, 15)
             {

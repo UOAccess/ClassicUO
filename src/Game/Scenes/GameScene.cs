@@ -512,8 +512,7 @@ namespace ClassicUO.Game.Scenes
             }
 
 
-            UpdateTextServerEntities(World.Mobiles);
-            UpdateTextServerEntities(World.Items);
+            UpdateTextServerEntities(World.Objects);
 
             _renderIndex++;
 
@@ -574,7 +573,7 @@ namespace ClassicUO.Game.Scenes
 
             if (_followingMode && SerialHelper.IsMobile(_followingTarget) && !Pathfinder.AutoWalking)
             {
-                Mobile follow = World.Mobiles.Get(_followingTarget);
+                var follow = World.Get(_followingTarget);
 
                 if (follow != null)
                 {

@@ -489,7 +489,7 @@ namespace ClassicUO.Network
             if (p.ID == 0x16 && Client.Version < Data.ClientVersion.CV_500A)
                 return;
 
-            Mobile mobile = World.Mobiles.Get(p.ReadUInt());
+            Mobile mobile = World.Get<Mobile>(p.ReadUInt());
 
             if (mobile == null) return;
 
@@ -632,7 +632,7 @@ namespace ClassicUO.Network
                 World.Clear();
             }
 
-            World.Mobiles.Add(World.Player = new PlayerMobile(p.ReadUInt()));
+            World.Objects.Add(World.Player = new PlayerMobile(p.ReadUInt()));
             p.Skip(4);
             World.Player.Graphic = p.ReadUShort();
             World.Player.CheckGraphicChange();
@@ -789,7 +789,7 @@ namespace ClassicUO.Network
                 }
                 // else
                 {
-                    World.RemoveMobile(serial, true);
+                    World.RemoveObject(serial, true);
                 }
             }
             else if (SerialHelper.IsItem(serial))
@@ -815,7 +815,7 @@ namespace ClassicUO.Network
                     UIManager.GetGump<MiniMapGump>()?.RequestUpdateContents();
                 }
 
-                World.RemoveItem(it, true);
+                World.RemoveObject(it, true);
 
                 if (updateAbilities)
                     World.Player.UpdateAbilities();
@@ -906,7 +906,7 @@ namespace ClassicUO.Network
                 graphic = 0x0EEC;
             else if (graphic == 0x0EF0) graphic = 0x0EF2;
 
-            Mobile entity = World.Mobiles.Get(source);
+            var entity = World.Get(source);
 
             if (entity == null)
                 source = 0;
@@ -917,7 +917,7 @@ namespace ClassicUO.Network
                 sourceZ = entity.Z;
             }
 
-            Mobile destEntity = World.Mobiles.Get(dest);
+            var destEntity = World.Get(dest);
 
             if (destEntity == null)
                 dest = 0;
@@ -971,7 +971,7 @@ namespace ClassicUO.Network
 
             if (graphic == 0xFFFF)
             {
-                Item spellBookItem = World.Items.Get(serial);
+                Item spellBookItem = World.Get<Item>(serial);
                 if (spellBookItem == null)
                     return;
 
@@ -986,7 +986,7 @@ namespace ClassicUO.Network
             }
             else if (graphic == 0x0030)
             {
-                Mobile vendor = World.Mobiles.Get(serial);
+                Mobile vendor = World.Get<Mobile>(serial);
 
                 if (vendor == null)
                     return;
@@ -1043,7 +1043,7 @@ namespace ClassicUO.Network
             }
             else
             {
-                Item item = World.Items.Get(serial);
+                Item item = World.Get<Item>(serial);
 
                 if (item != null)
                 {
@@ -1139,7 +1139,7 @@ namespace ClassicUO.Network
 
             if (graphic != 0x0030)
             {
-                Item it = World.Items.Get(serial);
+                Item it = World.Get<Item>(serial);
 
                 if (it != null)
                 {
@@ -1178,7 +1178,7 @@ namespace ClassicUO.Network
             if (!World.InGame)
                 return;
 
-            Item firstItem = World.Items.Get(ItemHold.Serial);
+            Item firstItem = World.Get<Item>(ItemHold.Serial);
 
             if (ItemHold.Enabled || ItemHold.Dropped && (firstItem == null || !firstItem.AllowedToDraw))
             {
@@ -1235,7 +1235,7 @@ namespace ClassicUO.Network
                                 Console.WriteLine("=== DENY === SOMETHING WRONG");
 
                                 RemoveItemFromContainer(item);
-                                World.RemoveItem(item, true);
+                                World.RemoveObject(item, true);
                             }
                         }
                         else
@@ -1409,7 +1409,7 @@ namespace ClassicUO.Network
                 World.Player.Walker.LastStepRequestTime + TIME_TURN_TO_LASTTARGET < Time.Ticks && 
                 World.Player.Steps.Count == 0)
             {
-                Mobile enemy = World.Mobiles.Get(defenders);
+                Mobile enemy = World.Get<Mobile>(defenders);
 
                 if (enemy != null)
                 {
@@ -1856,7 +1856,7 @@ namespace ClassicUO.Network
 
         private static void CharacterAnimation(Packet p)
         {
-            Mobile mobile = World.Mobiles.Get(p.ReadUInt());
+            Mobile mobile = World.Get<Mobile>(p.ReadUInt());
 
             if (mobile == null) return;
 
@@ -1937,7 +1937,7 @@ namespace ClassicUO.Network
 
                     {
                         uint serial = p.ReadUInt();
-                        Item item = World.Items.Get(serial);
+                        Item item = World.Get<Item>(serial);
 
                         if (item != null)
                         {
@@ -2057,11 +2057,11 @@ namespace ClassicUO.Network
             if (!World.InGame)
                 return;
 
-            Item container = World.Items.Get(p.ReadUInt());
+            Item container = World.Get<Item>(p.ReadUInt());
 
             if (container == null) return;
 
-            Mobile vendor = World.Mobiles.Get(container.Container);
+            Mobile vendor = World.Get<Mobile>(container.Container);
 
             if (vendor == null) return;
 
@@ -2149,7 +2149,7 @@ namespace ClassicUO.Network
                 return;
 
             uint serial = p.ReadUInt();
-            Mobile mobile = World.Mobiles.Get(serial);
+            Mobile mobile = World.Get<Mobile>(serial);
             if (mobile == null)
                 return;
 
@@ -2455,7 +2455,7 @@ namespace ClassicUO.Network
 
         private static void OpenPaperdoll(Packet p)
         {
-            Mobile mobile = World.Mobiles.Get(p.ReadUInt());
+            Mobile mobile = World.Get<Mobile>(p.ReadUInt());
 
             if (mobile == null) return;
 
@@ -2550,7 +2550,7 @@ namespace ClassicUO.Network
 
             UIManager.Add(gump);
 
-            Item it = World.Items.Get(serial);
+            Item it = World.Get<Item>(serial);
 
             if (it != null)
             {
@@ -2696,7 +2696,7 @@ namespace ClassicUO.Network
             if (!World.InGame)
                 return;
 
-            Mobile vendor = World.Mobiles.Get(p.ReadUInt());
+            Mobile vendor = World.Get<Mobile>(p.ReadUInt());
 
             if (vendor == null) return;
 
@@ -2757,7 +2757,7 @@ namespace ClassicUO.Network
 
         private static void UpdateMana(Packet p)
         {
-            Mobile mobile = World.Mobiles.Get(p.ReadUInt());
+            Mobile mobile = World.Get<Mobile>(p.ReadUInt());
 
             if (mobile == null) return;
 
@@ -2770,7 +2770,7 @@ namespace ClassicUO.Network
 
         private static void UpdateStamina(Packet p)
         {
-            Mobile mobile = World.Mobiles.Get(p.ReadUInt());
+            Mobile mobile = World.Get<Mobile>(p.ReadUInt());
 
             if (mobile == null) return;
 
@@ -2828,9 +2828,9 @@ namespace ClassicUO.Network
 
             if (TargetManager.LastAttack != 0 && World.InGame)
             {
-                Mobile mob = World.Mobiles.Get(TargetManager.LastAttack);
+                var entity = World.Get(TargetManager.LastAttack);
 
-                if (mob != null && mob.HitsMax == 0)
+                if (entity != null && entity.HitsMax == 0)
                     NetClient.Socket.Send(new PStatusRequest(TargetManager.LastAttack));
             }
         }
@@ -2945,14 +2945,14 @@ namespace ClassicUO.Network
             uint corpseSerial = p.ReadUInt();
             uint running = p.ReadUInt();
 
-            Mobile owner = World.Mobiles.Get(serial);
+            Mobile owner = World.Get<Mobile>(serial);
 
             if (owner == null || serial == World.Player)
                 return;
 
             serial |= 0x80000000;
 
-            World.Mobiles.Replace(owner, serial);
+            World.Objects.Replace(owner, serial);
 
             if (SerialHelper.IsValid(corpseSerial))
                 World.CorpseManager.Add(corpseSerial, serial, owner.Direction, running != 0);
@@ -3313,7 +3313,7 @@ namespace ClassicUO.Network
                 //===========================================================================================
                 //===========================================================================================
                 case 0x10: // display equip info
-                    Item item = World.Items.Get(p.ReadUInt());
+                    Item item = World.Get<Item>(p.ReadUInt());
 
                     if (item == null) return;
 
@@ -3482,7 +3482,7 @@ namespace ClassicUO.Network
                     switch (version)
                     {
                         case 0:
-                            Mobile bonded = World.Mobiles.Get(serial);
+                            Mobile bonded = World.Get<Mobile>(serial);
 
                             if (bonded == null) break;
 
@@ -3526,7 +3526,7 @@ namespace ClassicUO.Network
                                 }
                                 else
                                 {
-                                    Mobile mobile = World.Mobiles.Get(serial);
+                                    Mobile mobile = World.Get<Mobile>(serial);
 
                                     if (mobile != null)
                                     {
@@ -3588,7 +3588,7 @@ namespace ClassicUO.Network
                     serial = p.ReadUInt();
                     uint revision = p.ReadUInt();
 
-                    Item multi = World.Items.Get(serial);
+                    Item multi = World.Get<Item>(serial);
 
                     if (multi == null)
                     {
@@ -3875,14 +3875,14 @@ namespace ClassicUO.Network
 
             uint revision = p.ReadUInt();
 
-            Entity entity = World.Mobiles.Get(serial);
+            Entity entity = World.Get(serial);
 
-            if (entity == null)
-            {
-                if (SerialHelper.IsMobile(serial))
-                    Log.Warn( "Searching a mobile into World.Items from MegaCliloc packet");
-                entity = World.Items.Get(serial);
-            }
+            //if (entity == null)
+            //{
+            //    if (SerialHelper.IsMobile(serial))
+            //        Log.Warn( "Searching a mobile into World.Items from MegaCliloc packet");
+            //    entity = World.Items.Get(serial);
+            //}
 
             List<string> list = new List<string>();
 
@@ -3921,7 +3921,7 @@ namespace ClassicUO.Network
 
             if (entity is Item it && SerialHelper.IsValid(it.Container))
             {
-                container = World.Items.Get(it.Container);
+                container = World.Get<Item>(it.Container);
             }
 
             bool inBuyList = false;
@@ -4083,7 +4083,7 @@ namespace ClassicUO.Network
             bool compressed = p.ReadByte() == 0x03;
             bool enableReponse = p.ReadBool();
             uint serial = p.ReadUInt();
-            Item foundation = World.Items.Get(serial);
+            Item foundation = World.Get<Item>(serial);
             uint revision = p.ReadUInt();
 
             if (foundation == null)
@@ -4320,7 +4320,7 @@ namespace ClassicUO.Network
             if (World.Player == null)
                 return;
 
-            Mobile mobile = World.Mobiles.Get(p.ReadUInt());
+            Mobile mobile = World.Get<Mobile>(p.ReadUInt());
 
             if (mobile == null)
                 return;
@@ -4480,7 +4480,7 @@ namespace ClassicUO.Network
             ushort y = p.ReadUShort();
             ushort z = p.ReadUShort();
 
-            Item multi = World.Items.Get(serial);
+            Item multi = World.Get<Item>(serial);
             if (multi == null)
                 return;
 
@@ -4650,40 +4650,60 @@ namespace ClassicUO.Network
                 return;
             }
 
-            Item item = World.Items.Get(serial);
+            var obj = World.Get(serial);
 
-            if (SerialHelper.IsMobile(serial))
+            //if (SerialHelper.IsMobile(serial))
+            //{
+            //    World.RemoveMobile(serial, true);
+            //    Log.Warn( "AddItemToContainer function adds mobile as Item");
+            //}
+
+            if (obj != null && (container.Graphic != 0x2006 || (obj is Item it && it.Layer == Layer.Invalid)))
             {
-                World.RemoveMobile(serial, true);
-                Log.Warn( "AddItemToContainer function adds mobile as Item");
+                if (obj is Item it1)
+                {
+                    RemoveItemFromContainer(it1);
+                }
+               
+                World.Objects.Remove(obj);
+                obj.Destroy();
+                obj = null;
             }
 
-            if (item != null && (container.Graphic != 0x2006 || item.Layer == Layer.Invalid))
+            if (obj == null)
             {
-                RemoveItemFromContainer(item);
-                World.Items.Remove(item);
-                item.Destroy();
+                if (SerialHelper.IsItem(serial))
+                {
+                    obj = World.GetOrCreateItem(serial);
+
+                    Item item = (Item) obj;
+
+                    item.Amount = amount;
+                    if (SerialHelper.IsValid(item.Container))
+                    {
+                        RemoveItemFromContainer(item);
+                    }
+                    item.Container = containerSerial;
+                }
+                else
+                {
+                    obj = World.GetOrCreateMobile(serial);
+                }
             }
 
-            item = World.GetOrCreateItem(serial);
-            item.Graphic = graphic;
-            item.Amount = amount;
-            item.FixHue(hue);
-            item.X = x;
-            item.Y = y;
-            item.Z = 0;
+            obj.Graphic = graphic;
+            obj.FixHue(hue);
+            obj.X = x;
+            obj.Y = y;
+            obj.Z = 0;
 
-            if (SerialHelper.IsValid(item.Container))
-            {
-                RemoveItemFromContainer(item);
-            }
-            item.Container = containerSerial;
+           
 
-            container.PushToBack(item);
+            container.PushToBack(obj);
 
             if (SerialHelper.IsMobile(containerSerial))
             {
-                Mobile m = World.Mobiles.Get(containerSerial);
+                Mobile m = World.Get<Mobile>(containerSerial);
                 Item secureBox = m?.GetSecureTradeBox();
 
                 if (secureBox != null)
@@ -4754,6 +4774,11 @@ namespace ClassicUO.Network
                                              byte type,
                                              ushort UNK_2)
         {
+            if (serial == 0x04076D92)
+            {
+
+            }
+
             Mobile mobile = null;
             Item item = null;
             Entity obj = World.Get(serial);
@@ -4814,31 +4839,26 @@ namespace ClassicUO.Network
             }
             else
             {
-                if (SerialHelper.IsItem(serial))
+                if (obj is Item item1)
                 {
-                    item = (Item) obj;
+                    item = item1;
 
                     if (SerialHelper.IsValid(item.Container))
                     {
                         RemoveItemFromContainer(item);
                     }
                 }
-                else if (SerialHelper.IsMobile(serial))
+                else if (obj is Mobile mobile1)
                 {
-                    mobile = (Mobile) obj;
+                    mobile = mobile1;
                 }
             }
 
             if (obj == null)
                 return;
 
-            if (SerialHelper.IsItem(serial))
+            if (item != null)
             {
-                if (item == null)
-                {
-                    return;
-                }
-
                 if (graphic != 0x2006)
                 {
                     graphic += graphic_inc;
@@ -4922,7 +4942,7 @@ namespace ClassicUO.Network
 
             if (created && !obj.IsClicked)
             {
-                if (SerialHelper.IsMobile(serial))
+                if (mobile != null)
                 {
                     if (ProfileManager.Current.ShowNewMobileNameIncoming)
                         GameActions.SingleClick(serial);
@@ -4934,12 +4954,12 @@ namespace ClassicUO.Network
                 }
             }
 
-            if (SerialHelper.IsMobile(serial) && mobile != null)
+            if (mobile != null)
             {
                 mobile.AddToTile();
                 mobile.UpdateScreenPosition();
             }
-            else if (SerialHelper.IsItem(serial) && item != null)
+            else if (item != null)
             {
                 if (ItemHold.Serial == serial)
                 {
@@ -5081,7 +5101,7 @@ namespace ClassicUO.Network
                 else
                 {
                     RemoveItemFromContainer(it);
-                    World.Items.Remove(it);
+                    World.Objects.Remove(it);
                     it.Destroy();
                 }
 

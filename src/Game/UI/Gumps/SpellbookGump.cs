@@ -135,7 +135,7 @@ namespace ClassicUO.Game.UI.Gumps
 
         private void BuildGump()
         {
-            Item item = World.Items.Get(LocalSerial);
+            Item item = World.Get<Item>(LocalSerial);
 
             if (item == null)
             {
@@ -213,7 +213,7 @@ namespace ClassicUO.Game.UI.Gumps
 
             int totalSpells = 0;
 
-            Item item = World.Items.Get(LocalSerial);
+            Item item = World.Get<Item>(LocalSerial);
 
             if (item == null)
             {
@@ -669,7 +669,7 @@ namespace ClassicUO.Game.UI.Gumps
 
         protected override void UpdateContents()
         {
-            Item item = World.Items.Get(LocalSerial);
+            Item item = World.Get<Item>(LocalSerial);
 
             if (item == null)
             {
@@ -1082,7 +1082,7 @@ namespace ClassicUO.Game.UI.Gumps
         {
             base.Update(totalMS, frameMS);
 
-            Item item = World.Items.Get(LocalSerial);
+            Item item = World.Get<Item>(LocalSerial);
 
             if (item == null)
             {

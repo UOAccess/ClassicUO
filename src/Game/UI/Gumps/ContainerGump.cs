@@ -56,7 +56,7 @@ namespace ClassicUO.Game.UI.Gumps
 
         public ContainerGump(uint serial, ushort gumpid, bool playsound) : base(serial, 0)
         {
-            Item item = World.Items.Get(serial);
+            var item = World.Get(serial);
 
             if (item == null)
             {
@@ -112,7 +112,7 @@ namespace ClassicUO.Game.UI.Gumps
             _isCorspeContainer = Graphic == 0x0009;
 
           
-            Item item = World.Items.Get(LocalSerial);
+            var item = World.Get(LocalSerial);
 
             if (item == null)
             {
@@ -194,7 +194,7 @@ namespace ClassicUO.Game.UI.Gumps
             }
             else
             {
-                Entity thisCont = World.Items.Get(dropcontainer);
+                Entity thisCont = World.Get(dropcontainer);
                 if (thisCont == null)
                     return;
 
@@ -212,7 +212,7 @@ namespace ClassicUO.Game.UI.Gumps
                     {
                         candrop = true;
 
-                        Item target = World.Items.Get(serial);
+                        Item target = World.Get<Item>(serial);
 
                         if (target != null)
                         {
@@ -253,7 +253,7 @@ namespace ClassicUO.Game.UI.Gumps
 
                 if (candrop && ItemHold.Enabled)
                 {
-                    ((GameScene) Client.Game.Scene).DropHeldItemToContainer(World.Items.Get(dropcontainer), x, y);
+                    ((GameScene) Client.Game.Scene).DropHeldItemToContainer(World.Get(dropcontainer), x, y);
                     Mouse.CancelDoubleClick = true;
                 }
                 else if (!ItemHold.Enabled && SerialHelper.IsValid(serial))
@@ -276,7 +276,7 @@ namespace ClassicUO.Game.UI.Gumps
             if (IsDisposed)
                 return;
 
-            Item item = World.Items.Get(LocalSerial);
+            var item = World.Get(LocalSerial);
 
             if (item == null || item.IsDestroyed)
             {
@@ -456,7 +456,7 @@ namespace ClassicUO.Game.UI.Gumps
         {
             TextContainer.Clear();
 
-            Item item = World.Items.Get(LocalSerial);
+            var item = World.Get(LocalSerial);
 
             if (item != null)
             {

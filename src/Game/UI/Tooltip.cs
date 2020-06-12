@@ -189,7 +189,7 @@ namespace ClassicUO.Game.UI
                     }
                     else
                     {
-                        Mobile mob = World.Mobiles.Get(serial);
+                        Mobile mob = World.Get<Mobile>(serial);
 
                         if (mob != null)
                         {

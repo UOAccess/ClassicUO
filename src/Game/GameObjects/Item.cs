@@ -210,7 +210,7 @@ namespace ClassicUO.Game.GameObjects
 
                 while (SerialHelper.IsItem(item.Container))
                 {
-                    item = World.Items.Get(item.Container);
+                    item = World.Get<Item>(item.Container);
 
                     if (item == null)
                         return 0;

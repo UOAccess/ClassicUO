@@ -1274,7 +1274,8 @@ namespace ClassicUO.Game.GameObjects
                 if ((ProfileManager.Current.CorpseOpenOptions == 2 || ProfileManager.Current.CorpseOpenOptions == 3) && IsHidden)
                     return;
 
-                foreach (var c in World.Items.Where(t => t.Graphic == 0x2006 && !AutoOpenedCorpses.Contains(t.Serial) && t.Distance <= ProfileManager.Current.AutoOpenCorpseRange))
+                // FIXME: remove linq
+                foreach (var c in World.Objects.Where(t => t.Graphic == 0x2006 && !AutoOpenedCorpses.Contains(t.Serial) && t.Distance <= ProfileManager.Current.AutoOpenCorpseRange))
                 {
                     AutoOpenedCorpses.Add(c.Serial);
                     GameActions.DoubleClickQueued(c.Serial);
@@ -1296,7 +1297,8 @@ namespace ClassicUO.Game.GameObjects
                 int x = X, y = Y, z = Z;
                 Pathfinder.GetNewXY((byte) Direction, ref x, ref y);
 
-                if (World.Items.Any(s =>
+                // FIXME: remove linq
+                if (World.Objects.Any(k => k is Item s &&
                                         s.ItemData.IsDoor && s.X == x && s.Y == y && s.Z - 15 <= z &&
                                         s.Z + 15 >= z))
                     GameActions.OpenDoor();
@@ -1326,7 +1328,7 @@ namespace ClassicUO.Game.GameObjects
                     {
                         var next = (Item) first.Next;
 
-                        World.RemoveItem(first, true);
+                        World.RemoveObject(first, true);
 
                         first = next;
                     }

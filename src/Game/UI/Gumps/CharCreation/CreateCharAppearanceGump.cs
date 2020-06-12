@@ -159,7 +159,7 @@ namespace ClassicUO.Game.UI.Gumps.CharCreation
             if (_character == null)
             {
                 _character = new PlayerMobile(1);
-                World.Mobiles.Add(_character);
+                World.Objects.Add(_character);
             }
 
             var first = _character.Items;
@@ -168,7 +168,7 @@ namespace ClassicUO.Game.UI.Gumps.CharCreation
             {
                 var next = first.Next;
 
-                World.RemoveItem((Item) first, true);
+                World.RemoveObject((Item) first, true);
 
                 first = next;
             }
@@ -498,7 +498,7 @@ namespace ClassicUO.Game.UI.Gumps.CharCreation
 
             if (existsItem != null)
             {
-                World.RemoveItem(existsItem, true);
+                World.RemoveObject(existsItem, true);
                 _character.Remove(existsItem);
             }
 

@@ -88,7 +88,7 @@ namespace ClassicUO.Game.UI.Controls
             {
                 batcher.Draw2D(texture, x, y, Width, Height, ref _hueVector);
 
-                Item item = World.Items.Get(LocalSerial);
+                Item item = World.Get<Item>(LocalSerial);
 
                 if (item != null && !item.IsMulti && !item.IsCoin && item.Amount > 1 && item.ItemData.IsStackable)
                 {
@@ -121,7 +121,7 @@ namespace ClassicUO.Game.UI.Controls
                 return true;
             }
 
-            Item item = World.Items.Get(LocalSerial);
+            Item item = World.Get<Item>(LocalSerial);
 
             if (item != null && !item.IsCoin && item.Amount > 1 && item.ItemData.IsStackable)
             {
@@ -143,7 +143,7 @@ namespace ClassicUO.Game.UI.Controls
                     GameScene gs = Client.Game.GetScene<GameScene>();
                     if (gs != null)
                     {
-                        Item item = World.Items.Get(LocalSerial);
+                        Item item = World.Get<Item>(LocalSerial);
                         if (item != null)
                         {
                             if (TargetManager.IsTargeting)
@@ -159,7 +159,7 @@ namespace ClassicUO.Game.UI.Controls
                                         else
                                         {
                                             if (SerialHelper.IsItem(item.Container))
-                                                gs.DropHeldItemToContainer(World.Items.Get(item.Container), X + (Mouse.Position.X - ScreenCoordinateX), Y + (Mouse.Position.Y - ScreenCoordinateY));
+                                                gs.DropHeldItemToContainer(item.Container, X + (Mouse.Position.X - ScreenCoordinateX), Y + (Mouse.Position.Y - ScreenCoordinateY));
                                         }
 
                                         Mouse.CancelDoubleClick = true;
@@ -241,7 +241,7 @@ namespace ClassicUO.Game.UI.Controls
                                     else if (ItemHold.Graphic == item.Graphic && ItemHold.IsStackable)
                                         gs.MergeHeldItem(item);
                                     else if (SerialHelper.IsItem(item.Container))
-                                        gs.DropHeldItemToContainer(World.Items.Get(item.Container), X + (Mouse.Position.X - ScreenCoordinateX), Y + (Mouse.Position.Y - ScreenCoordinateY));
+                                        gs.DropHeldItemToContainer(item.Container, X + (Mouse.Position.X - ScreenCoordinateX), Y + (Mouse.Position.Y - ScreenCoordinateY));
                                     else
                                         base.OnMouseUp(x, y, button);
 
@@ -287,14 +287,14 @@ namespace ClassicUO.Game.UI.Controls
             if (button != MouseButtonType.Left || TargetManager.IsTargeting)
                 return false;
 
-            Item item = World.Items.Get(LocalSerial);
+            Item item = World.Get<Item>(LocalSerial);
             Item container;
 
             if ( !Input.Keyboard.Ctrl &&
                 ProfileManager.Current.DoubleClickToLootInsideContainers &&
                 item != null && !item.IsDestroyed &&
                 !item.ItemData.IsContainer && item.IsEmpty &&
-                (container = World.Items.Get(item.RootContainer)) != null &&
+                (container = World.Get<Item>(item.RootContainer)) != null &&
                 container != World.Player.FindItemByLayer(Layer.Backpack)
             )
             {

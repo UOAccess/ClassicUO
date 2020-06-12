@@ -100,7 +100,7 @@ namespace ClassicUO.Game.Managers
 
         private void InitializeHouse()
         {
-            Item foundation = World.Items.Get(Serial);
+            Item foundation = World.Get<Item>(Serial);
 
             if (foundation != null)
             {
@@ -138,7 +138,7 @@ namespace ClassicUO.Game.Managers
 
         public void GenerateFloorPlace()
         {
-            Item foundationItem = World.Items.Get(Serial);
+            var foundationItem = World.Get<Item>(Serial);
 
             if (foundationItem != null && World.HouseManager.TryGetHouse(Serial, out var house))
             {
@@ -579,7 +579,7 @@ namespace ClassicUO.Game.Managers
                 }
                 else if (place.Z >= World.Player.Z + zOffset && place.Z < World.Player.Z + 20)
                 {
-                    Item foundationItem = World.Items.Get(Serial);
+                    Item foundationItem = World.Get<Item>(Serial);
 
                     if (foundationItem == null || !World.HouseManager.TryGetHouse(Serial, out var house))
                         return;
@@ -1149,7 +1149,7 @@ namespace ClassicUO.Game.Managers
                 //    return false;
                 //}
 
-                Item foundationItem = World.Items.Get(Serial);
+                var foundationItem = World.Get(Serial);
 
                 int minZ = (foundationItem?.Z ?? 0) + 7 + (CurrentFloor - 1) * 20;
                 int maxZ = minZ + 20;

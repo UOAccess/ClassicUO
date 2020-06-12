@@ -160,99 +160,104 @@ namespace ClassicUO.Game.Scenes
 
             Rectangle rect = useCHB ? new Rectangle(0, 0, HealthBarGumpCustom.HPB_BAR_WIDTH, HealthBarGumpCustom.HPB_HEIGHT_MULTILINE) : GumpsLoader.Instance.GetTexture(0x0804).Bounds;
 
-            foreach (Mobile mobile in World.Mobiles)
+            foreach (Entity entity in World.Objects)
             {
-                if (ProfileManager.Current.DragSelectHumanoidsOnly && !mobile.IsHuman)
-                    continue;
-
-                int x = ProfileManager.Current.GameWindowPosition.X + mobile.RealScreenPosition.X + (int) mobile.Offset.X + 22 + 5;
-                int y = ProfileManager.Current.GameWindowPosition.Y + (mobile.RealScreenPosition.Y - (int) mobile.Offset.Z) + 22 + 5;
-
-                x -= mobile.FrameInfo.X;
-                y -= mobile.FrameInfo.Y;
-                int w = mobile.FrameInfo.Width;
-                int h = mobile.FrameInfo.Height;
-
-                x = (int) (x * (1 / Scale));
-                y = (int) (y * (1 / Scale));
-
-                _rectanglePlayer.X = x;
-                _rectanglePlayer.Y = y;
-                _rectanglePlayer.Width = w;
-                _rectanglePlayer.Height = h;
-
-                if (_rectangleObj.Intersects(_rectanglePlayer))
+                if (entity is Mobile mobile)
                 {
-                    if (mobile != World.Player)
+
+
+                    if (ProfileManager.Current.DragSelectHumanoidsOnly && !mobile.IsHuman)
+                        continue;
+
+                    int x = ProfileManager.Current.GameWindowPosition.X + mobile.RealScreenPosition.X + (int) mobile.Offset.X + 22 + 5;
+                    int y = ProfileManager.Current.GameWindowPosition.Y + (mobile.RealScreenPosition.Y - (int) mobile.Offset.Z) + 22 + 5;
+
+                    x -= mobile.FrameInfo.X;
+                    y -= mobile.FrameInfo.Y;
+                    int w = mobile.FrameInfo.Width;
+                    int h = mobile.FrameInfo.Height;
+
+                    x = (int) (x * (1 / Scale));
+                    y = (int) (y * (1 / Scale));
+
+                    _rectanglePlayer.X = x;
+                    _rectanglePlayer.Y = y;
+                    _rectanglePlayer.Width = w;
+                    _rectanglePlayer.Height = h;
+
+                    if (_rectangleObj.Intersects(_rectanglePlayer))
                     {
-                        if (UIManager.GetGump<BaseHealthBarGump>(mobile) != null)
+                        if (mobile != World.Player)
                         {
-                            continue;
-                        }
-
-                        //Instead of destroying existing HP bar, continue if already opened.
-                        GameActions.RequestMobileStatus(mobile);
-
-                        BaseHealthBarGump hbgc;
-
-                        if (useCHB)
-                        {
-                            hbgc = new HealthBarGumpCustom(mobile);
-                        }
-                        else
-                        {
-                            hbgc = new HealthBarGump(mobile);
-                        }
-
-                        if (finalY >= ProfileManager.Current.GameWindowPosition.Y + ProfileManager.Current.GameWindowSize.Y - 100)
-                        {
-                            finalY = 100;
-                            finalX += rect.Width + 2;
-                        }
-
-                        if (finalX >= ProfileManager.Current.GameWindowPosition.X + ProfileManager.Current.GameWindowSize.X - 100)
-                        {
-                            finalX = 100;
-                        }
-
-                        hbgc.X = finalX;
-                        hbgc.Y = finalY;
-
-
-                        foreach (var bar in UIManager.Gumps
-                                                .OfType<BaseHealthBarGump>()
-                                                  //.OrderBy(s => mobile.NotorietyFlag)
-                                                  //.OrderBy(s => s.ScreenCoordinateX) ///testing placement SYRUPZ SYRUPZ SYRUPZ
-                                                  .OrderBy(s => s.ScreenCoordinateX)
-                                                  .ThenBy(s => s.ScreenCoordinateY))
-                        {
-                            if (bar.Bounds.Intersects(hbgc.Bounds))
+                            if (UIManager.GetGump<BaseHealthBarGump>(mobile) != null)
                             {
-                                finalY = bar.Bounds.Bottom + 2;
-
-                                if (finalY >= ProfileManager.Current.GameWindowPosition.Y + ProfileManager.Current.GameWindowSize.Y - 100)
-                                {
-                                    finalY = 100;
-                                    finalX = bar.Bounds.Right + 2;
-                                }
-
-                                if (finalX >= ProfileManager.Current.GameWindowPosition.X + ProfileManager.Current.GameWindowSize.X - 100)
-                                {
-                                    finalX = 100;
-                                }
-
-                                hbgc.X = finalX;
-                                hbgc.Y = finalY;
+                                continue;
                             }
+
+                            //Instead of destroying existing HP bar, continue if already opened.
+                            GameActions.RequestMobileStatus(mobile);
+
+                            BaseHealthBarGump hbgc;
+
+                            if (useCHB)
+                            {
+                                hbgc = new HealthBarGumpCustom(mobile);
+                            }
+                            else
+                            {
+                                hbgc = new HealthBarGump(mobile);
+                            }
+
+                            if (finalY >= ProfileManager.Current.GameWindowPosition.Y + ProfileManager.Current.GameWindowSize.Y - 100)
+                            {
+                                finalY = 100;
+                                finalX += rect.Width + 2;
+                            }
+
+                            if (finalX >= ProfileManager.Current.GameWindowPosition.X + ProfileManager.Current.GameWindowSize.X - 100)
+                            {
+                                finalX = 100;
+                            }
+
+                            hbgc.X = finalX;
+                            hbgc.Y = finalY;
+
+
+                            foreach (var bar in UIManager.Gumps
+                                                         .OfType<BaseHealthBarGump>()
+                                                          //.OrderBy(s => mobile.NotorietyFlag)
+                                                          //.OrderBy(s => s.ScreenCoordinateX) ///testing placement SYRUPZ SYRUPZ SYRUPZ
+                                                         .OrderBy(s => s.ScreenCoordinateX)
+                                                         .ThenBy(s => s.ScreenCoordinateY))
+                            {
+                                if (bar.Bounds.Intersects(hbgc.Bounds))
+                                {
+                                    finalY = bar.Bounds.Bottom + 2;
+
+                                    if (finalY >= ProfileManager.Current.GameWindowPosition.Y + ProfileManager.Current.GameWindowSize.Y - 100)
+                                    {
+                                        finalY = 100;
+                                        finalX = bar.Bounds.Right + 2;
+                                    }
+
+                                    if (finalX >= ProfileManager.Current.GameWindowPosition.X + ProfileManager.Current.GameWindowSize.X - 100)
+                                    {
+                                        finalX = 100;
+                                    }
+
+                                    hbgc.X = finalX;
+                                    hbgc.Y = finalY;
+                                }
+                            }
+
+
+                            finalY += rect.Height + 2;
+
+
+                            UIManager.Add(hbgc);
+
+                            hbgc.SetInScreen();
                         }
-
-
-                        finalY += rect.Height + 2;
-
-
-                        UIManager.Add(hbgc);
-
-                        hbgc.SetInScreen();
                     }
                 }
             }

@@ -187,7 +187,7 @@ namespace ClassicUO.Game.UI.Gumps
                     ButtonAction = ButtonAction.Activate
                 });
                 // TOGGLE PEACE/WAR BUTTON
-                Mobile mobile = World.Mobiles.Get(LocalSerial);
+                Mobile mobile = World.Get<Mobile>(LocalSerial);
 
                 _isWarMode = mobile?.InWarMode ?? false;
                 ushort[] btngumps = _isWarMode ? WarModeBtnGumps : PeaceModeBtnGumps;
@@ -336,7 +336,7 @@ namespace ClassicUO.Game.UI.Gumps
             if (IsDisposed)
                 return;
 
-            Mobile mobile = World.Mobiles.Get(LocalSerial);
+            Mobile mobile = World.Get<Mobile>(LocalSerial);
 
             if (mobile != null && mobile.IsDestroyed)
             {
@@ -387,7 +387,7 @@ namespace ClassicUO.Game.UI.Gumps
         {
             if (button == MouseButtonType.Left)
             {
-                Mobile container = World.Mobiles.Get(LocalSerial);
+                var container = World.Get(LocalSerial);
 
                 if (ItemHold.Enabled && SerialHelper.IsValid(LocalSerial))
                 {
@@ -461,7 +461,7 @@ namespace ClassicUO.Game.UI.Gumps
 
         protected override void UpdateContents()
         {
-            Mobile mobile = World.Mobiles.Get(LocalSerial);
+            Mobile mobile = World.Get<Mobile>(LocalSerial);
 
             if (mobile != null && mobile.Title != _titleLabel.Text)
             {
@@ -639,7 +639,7 @@ namespace ClassicUO.Game.UI.Gumps
             
             public override void Update(double totalMS, double frameMS)
             {
-                Item item = World.Items.Get(LocalSerial);
+                Item item = World.Get<Item>(LocalSerial);
 
                 if (item == null || item.IsDestroyed)
                 {
@@ -647,7 +647,7 @@ namespace ClassicUO.Game.UI.Gumps
                     _itemGump = null;
                 }
 
-                Mobile mobile = World.Mobiles.Get(_parentSerial);
+                Mobile mobile = World.Get<Mobile>(_parentSerial);
 
                 if (mobile != null)
                 {
@@ -720,7 +720,7 @@ namespace ClassicUO.Game.UI.Gumps
 
                 public override bool Draw(UltimaBatcher2D batcher, int x, int y)
                 {
-                    Item item = World.Items.Get(LocalSerial);
+                    Item item = World.Get<Item>(LocalSerial);
 
                     if (item == null)
                     {

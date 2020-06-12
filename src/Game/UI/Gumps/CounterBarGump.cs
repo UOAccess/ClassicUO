@@ -367,7 +367,7 @@ namespace ClassicUO.Game.UI.Gumps
                     if (!ItemHold.Enabled || !gs.IsMouseOverUI)
                         return;
 
-                    Item item = World.Items.Get(ItemHold.Container);
+                    Item item = World.Get<Item>(ItemHold.Container);
 
                     if (item == null)
                         return;
