@@ -46,6 +46,7 @@ namespace ClassicUO.Game.GameObjects
         public Mobile(uint serial) : base(serial)
         {
             LastAnimationChangeTime = Time.Ticks;
+            IsTrueMobile = true;
             CalculateRandomIdleTime();
         }
 
@@ -119,6 +120,7 @@ namespace ClassicUO.Game.GameObjects
                 mobile.Next = null;
                 mobile.Previous = null;
                 mobile.Name = null;
+                mobile.IsTrueMobile = true;
 
                 mobile.CalculateRandomIdleTime();
 

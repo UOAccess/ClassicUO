@@ -52,6 +52,7 @@ namespace ClassicUO.Game.GameObjects
 
         public Item(uint serial) : base(serial)
         {
+            IsTrueMobile = false;
         }
 
 
@@ -106,6 +107,7 @@ namespace ClassicUO.Game.GameObjects
                 i.AlphaHue = 0;
                 i.DrawTransparent = false;
                 i.AllowedToDraw = true;
+                i.IsTrueMobile = false;
 
                 return i;
             }

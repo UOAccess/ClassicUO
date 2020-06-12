@@ -50,7 +50,7 @@ namespace ClassicUO.Game.GameObjects
         public ushort Hits;
         public ushort HitsMax;
         public string Name;
-
+        public bool IsTrueMobile;
         public bool IsHidden => (Flags & Flags.Hidden) != 0;
 
         public Direction Direction
@@ -155,6 +155,7 @@ namespace ClassicUO.Game.GameObjects
         {
             base.Destroy();
 
+            IsTrueMobile = false;
             AnimIndex = 0;
             LastAnimationChangeTime = 0;
             HitsTexture?.Destroy();

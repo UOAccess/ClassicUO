@@ -4652,11 +4652,11 @@ namespace ClassicUO.Network
 
             var obj = World.Get(serial);
 
-            //if (SerialHelper.IsMobile(serial))
-            //{
-            //    World.RemoveMobile(serial, true);
-            //    Log.Warn( "AddItemToContainer function adds mobile as Item");
-            //}
+            if (SerialHelper.IsMobile(serial))
+            {
+                World.RemoveObject(serial, true);
+                Log.Warn("AddItemToContainer function adds mobile as Item");
+            }
 
             if (obj != null && (container.Graphic != 0x2006 || (obj is Item it && it.Layer == Layer.Invalid)))
             {
@@ -4731,7 +4731,7 @@ namespace ClassicUO.Network
                     {
                         gump = UIManager.GetGump<ContainerGump>(containerSerial);
 
-                        if (gump != null)
+                        if (gump != null && obj is Item item)
                         {
                             ((ContainerGump) gump).CheckItemControlPosition(item);
                         }
